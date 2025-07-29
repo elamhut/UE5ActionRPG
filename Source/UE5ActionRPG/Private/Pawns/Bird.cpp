@@ -3,7 +3,9 @@
 
 #include "UE5ActionRPG/Public/Pawns/Bird.h"
 
+#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 
 // Sets default values
@@ -17,6 +19,13 @@ ABird::ABird()
 	
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh Component"));
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Componen"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -38,8 +47,15 @@ void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void ABird::DoMove(FVector2D Vector)
+void ABird::DoMove(const FVector2D Vector)
 {
-	UE_LOG(LogHAL, Warning, TEXT("BIRD MOVE with Vector: %s"), *Vector.ToString());
+	AddMovementInput(GetActorForwardVector() * Vector.X);
+	AddMovementInput(GetActorRightVector() * Vector.Y);
+}
+
+void ABird::DoLook(const FVector2D Vector)
+{
+	AddControllerYawInput(Vector.X);
+	AddControllerPitchInput(Vector.Y);
 }
 

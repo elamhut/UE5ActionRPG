@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "ActionRPGPlayerController.generated.h"
 
+class AActionRPGCharacter;
 class ABird;
 class UInputMappingContext;
 class UInputAction;
@@ -24,10 +25,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void HandleMove(const FInputActionValue& Value);
+	void HandleLook(const FInputActionValue& Value);
+	void HandleJump();
+	void HandleAttack();
+	void HandleEquip();
+	void HandleDodge();
 
 private:
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<ABird> Bird;
+	TObjectPtr<AActionRPGCharacter> PlayerChar;
 	
 	UPROPERTY()
 	TObjectPtr<UEnhancedInputComponent> EnhancedInputComponent;
@@ -40,4 +46,19 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
 	TObjectPtr<UInputAction> MoveAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
+	TObjectPtr<UInputAction> LookAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
+	TObjectPtr<UInputAction> JumpAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
+	TObjectPtr<UInputAction> AttackAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
+	TObjectPtr<UInputAction> EquipAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Enhanced Input Properties | Actions")
+	TObjectPtr<UInputAction> DodgeAction;
 };

@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "Bird.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
 class UCapsuleComponent;
 
 UCLASS()
@@ -18,7 +20,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void DoMove(FVector2D Vector);
-	
+	void DoLook(FVector2D Vector);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -27,4 +30,8 @@ private:
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> SkeletalMeshComponent;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCameraComponent> CameraComponent;
 };
