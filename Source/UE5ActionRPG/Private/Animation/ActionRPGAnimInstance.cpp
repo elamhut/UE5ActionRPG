@@ -23,4 +23,5 @@ void UActionRPGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	GroundSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
 
 	bIsFalling = MovementComponent->IsFalling();
+	CharacterState = ActionRPGCharacter->GetCharacterState();
 }

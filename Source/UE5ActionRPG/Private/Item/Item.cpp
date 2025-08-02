@@ -3,6 +3,9 @@
 
 #include "UE5ActionRPG/Public/Item/Item.h"
 
+#include "Characters/ActionRPGCharacter.h"
+#include "Components/SphereComponent.h"
+
 
 // Sets default values
 AItem::AItem()
@@ -11,30 +14,58 @@ AItem::AItem()
 	PrimaryActorTick.bCanEverTick = true;
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));
 	RootComponent = ItemMesh;
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
+	Sphere->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 }
 
 float AItem::TransformedSin()
 {
-	return  FMath::Sin(RunningTime * Speed) * Amplitude;
+	return  Amplitude * FMath::Sin(RunningTime * Speed);
 }
 
 float AItem::TransformedCos()
 {
-	return  FMath::Cos(RunningTime * Speed) * Amplitude;
+	return  Amplitude * FMath::Cos(RunningTime * Speed);
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (AActionRPGCharacter* Character = Cast<AActionRPGCharacter>(OtherActor))
+	{
+		Character->SetOverlappingItem(this);
+	}
+
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (AActionRPGCharacter* Character = Cast<AActionRPGCharacter>(OtherActor))
+	{
+		Character->SetOverlappingItem(nullptr);
+	}
 }
 
 // Called every frame
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	RunningTime += DeltaTime;
+
+	if (ItemState == EItemState::EIS_Hovering)
+	{
+		AddActorWorldOffset(FVector(0.f, 0.f, TransformedSin()));
+	}
 }
 

@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "ActionRPGAnimInstance.generated.h"
 
+enum class ECharacterState : uint8;
 class UCharacterMovementComponent;
 class AActionRPGCharacter;
 /**
@@ -31,4 +32,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsFalling;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement | Character State")
+	ECharacterState CharacterState;
 };

@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterTypes.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "ActionRPGCharacter.generated.h"
 
+class AItem;
 class UGroomComponent;
+class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS()
@@ -26,11 +28,26 @@ public:
 	virtual void DoEquip();
 	virtual void DoDodge();
 
+	[[nodiscard]] FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
+	FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
+	[[nodiscard]] FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void PlayAttackMontage() const;
+	bool CanAttack() const;
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnded(UAnimMontage* Montage, bool bInterrupted);
 
 private:
+
+	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	EActionState ActionState = EActionState::EAS_Unoccupied;
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
@@ -42,4 +59,13 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="Hair")
 	TObjectPtr<UGroomComponent> Eyebrows;
+
+	UPROPERTY(VisibleInstanceOnly)
+	TObjectPtr<AItem> OverlappingItem;
+
+	// Animation Montages
+
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	TObjectPtr<UAnimMontage> AttackMontage;
+
 };
