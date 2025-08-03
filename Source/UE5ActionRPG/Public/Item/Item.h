@@ -52,9 +52,10 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USphereComponent> Sphere;
+	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sine Parameters", meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USphereComponent> Sphere;
 };

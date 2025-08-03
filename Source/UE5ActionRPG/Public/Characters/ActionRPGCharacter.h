@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "ActionRPGCharacter.generated.h"
 
+class AWeapon;
 class AItem;
 class UGroomComponent;
 class USpringArmComponent;
@@ -36,11 +37,26 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void PlayAttackMontage() const;
+	void PlayEquipMontage(const FName SectionName) const;
 	bool CanAttack() const;
+	bool CanDisarm() const;
+	bool CanArm() const;
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnded(UAnimMontage* Montage, bool bInterrupted);
 
+	UFUNCTION(BlueprintCallable)
+	void Disarm() const;
+	
+	UFUNCTION(BlueprintCallable)
+	void Arm() const;
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
+
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled);
+	
 private:
 
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
@@ -63,9 +79,15 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	TObjectPtr<AItem> OverlappingItem;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AWeapon> EquippedWeapon;
+
 	// Animation Montages
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	TObjectPtr<UAnimMontage> EquipMontage;
 
 };

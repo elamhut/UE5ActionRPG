@@ -3,40 +3,86 @@
 
 #include "Item/Weapon.h"
 
-#include "Characters/ActionRPGCharacter.h"
-
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AWeapon::AWeapon()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	WeaponCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollier"));
+	WeaponCollider->SetupAttachment(GetRootComponent());
+	WeaponCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponCollider->SetCollisionResponseToAllChannels(ECR_Overlap);
+	WeaponCollider->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	TraceStart = CreateDefaultSubobject<USceneComponent>(TEXT("TraceStart"));
+	TraceStart->SetupAttachment(GetRootComponent());
+
+	TraceEnd = CreateDefaultSubobject<USceneComponent>(TEXT("TraceEnd"));
+	TraceEnd->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	WeaponCollider->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
+}
+
+void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName InSocketName)
+{
+	const FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);
+	ItemMesh->AttachToComponent(InParent, TransformRules, InSocketName);
 }
 
 void AWeapon::Equip(USceneComponent* InParent, const FName InSocketName)
 {
-	const FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);
-	ItemMesh->AttachToComponent(InParent, TransformRules, InSocketName);
+	AttachMeshToSocket(InParent, InSocketName);
 	ItemState = EItemState::EIS_Equipped;
+
+	if (Sphere)
+		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                              const FHitResult& SweepResult)
 {
 	Super::OnSphereOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Super::OnSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
+}
+
+void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                           int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	const FVector Start = TraceStart->GetComponentLocation();
+	const FVector End = TraceEnd->GetComponentLocation();
+	TArray<AActor*> ActorsToIgnore;
+	FHitResult HitResult{};
+	
+	UKismetSystemLibrary::BoxTraceSingle(
+		this,
+		Start,
+		End,
+		FVector(5.f, 5.f, 5.f),
+		TraceStart->GetComponentRotation(),
+		TraceTypeQuery1,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForDuration,
+		HitResult,
+		true
+	);
 }
 
 // Called every frame
@@ -44,4 +90,3 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

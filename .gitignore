@@ -8,6 +8,7 @@
 *.o
 *.obj
 *.fbx
+*.wav
 
 # Precompiled Headers
 *.gch
