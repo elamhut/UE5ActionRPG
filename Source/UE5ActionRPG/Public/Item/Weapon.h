@@ -16,11 +16,12 @@ class UE5ACTIONRPG_API AWeapon : public AItem
 public:
 	// Sets default values for this actor's properties
 	AWeapon();
-	virtual void Tick(float DeltaTime) override;
 	void Equip(USceneComponent* InParent, FName InSocketName);
 	void AttachMeshToSocket(USceneComponent* InParent, FName InSocketName);
-
+	
 	[[nodiscard]] FORCEINLINE  UBoxComponent* GetWeaponCollider() const { return  WeaponCollider; }
+	
+	TArray<AActor*> IgnoreActors;
 
 protected:
 	// Called when the game starts or when spawned
@@ -41,4 +42,6 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> TraceEnd;
+
+
 };

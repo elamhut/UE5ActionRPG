@@ -131,14 +131,12 @@ void AActionRPGCharacter::DoAttack()
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &AActionRPGCharacter::AttackEnded);
-		UE_LOG(LogTemp, Warning, TEXT("Current Action State %ls"), *UEnum::GetValueAsString(ActionState));
 	}
 }
 
 void AActionRPGCharacter::AttackEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	ActionState = EActionState::EAS_Unoccupied;
-	UE_LOG(LogTemp, Warning, TEXT("Current Action State %ls"), *UEnum::GetValueAsString(ActionState));
 }
 
 void AActionRPGCharacter::Disarm() const
@@ -165,7 +163,10 @@ void AActionRPGCharacter::FinishEquipping()
 void AActionRPGCharacter::SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled)
 {
 	if (EquippedWeapon && EquippedWeapon->GetWeaponCollider())
+	{
 		EquippedWeapon->GetWeaponCollider()->SetCollisionEnabled(CollisionEnabled);
+		EquippedWeapon->IgnoreActors.Empty();
+	}
 }
 
 bool AActionRPGCharacter::CanDisarm() const

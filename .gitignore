@@ -9,6 +9,8 @@
 *.obj
 *.fbx
 *.wav
+*.png
+*.zip
 
 # Precompiled Headers
 *.gch

@@ -5,6 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Interfaces/HitInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -67,8 +68,11 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 {
 	const FVector Start = TraceStart->GetComponentLocation();
 	const FVector End = TraceEnd->GetComponentLocation();
-	TArray<AActor*> ActorsToIgnore;
 	FHitResult HitResult{};
+	
+	TArray<AActor*> ActorsToIgnore;
+	for (AActor* Actor : IgnoreActors)
+		ActorsToIgnore.AddUnique(Actor);
 	
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
@@ -79,14 +83,14 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		TraceTypeQuery1,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		HitResult,
 		true
 	);
-}
 
-// Called every frame
-void AWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	if (IHitInterface* HitActor = Cast<IHitInterface>(HitResult.GetActor()))
+	{
+		HitActor->GetHit(HitResult.ImpactPoint);
+		IgnoreActors.AddUnique(HitResult.GetActor());
+	}
 }
