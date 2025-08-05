@@ -15,7 +15,8 @@ public class UE5ActionRPG : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"HairStrandsCore"
+			"HairStrandsCore",
+			"GeometryCollectionEngine"
 		} );
 
 		PrivateDependencyModuleNames.AddRange( new string[] { } );
