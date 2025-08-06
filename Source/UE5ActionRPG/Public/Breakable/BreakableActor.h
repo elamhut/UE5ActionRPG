@@ -5,7 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/HitInterface.h"
+
 #include "BreakableActor.generated.h"
+
+class UCapsuleComponent;
+struct FChaosBreakEvent;
+class ATreasure;
 
 UCLASS()
 class UE5ACTIONRPG_API ABreakableActor : public AActor, public IHitInterface
@@ -17,11 +22,23 @@ public:
 	ABreakableActor();
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
+	UFUNCTION()
+	void DropItem(const FChaosBreakEvent& Event);
+	
+
 protected:
-	// Called when the game starts or when spawned
+	bool bBroken = false;
+	
 	virtual void BeginPlay() override;
 
-private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UGeometryCollectionComponent> GeometryCollectionComponent;
+	
+private:
+	UPROPERTY(EditAnywhere, Category="BreakableProperties")
+	TArray<TSoftClassPtr<ATreasure>> ArrayOfTreasures;
+	
 };
