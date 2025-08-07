@@ -16,7 +16,7 @@ class UE5ACTIONRPG_API AWeapon : public AItem
 public:
 	// Sets default values for this actor's properties
 	AWeapon();
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
 	void AttachMeshToSocket(USceneComponent* InParent, FName InSocketName);
 	
 	[[nodiscard]] FORCEINLINE  UBoxComponent* GetWeaponCollider() const { return  WeaponCollider; }
@@ -37,6 +37,9 @@ protected:
 	void CreateFields(const FVector& FieldLocation);
 	
 private:
+	UPROPERTY(EditAnywhere)
+	float Damage{20.f};
+	
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	TObjectPtr<UBoxComponent> WeaponCollider;
 

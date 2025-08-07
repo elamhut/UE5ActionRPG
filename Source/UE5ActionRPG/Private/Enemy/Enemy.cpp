@@ -3,7 +3,9 @@
 
 #include "Enemy/Enemy.h"
 
+#include "Components/AttributeComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "HUD/HealthBarComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -20,12 +22,19 @@ AEnemy::AEnemy()
 	SkeletalMesh->SetGenerateOverlapEvents(true);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+
+	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+
+	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBarComponent"));
+	HealthBarWidget->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName) const
@@ -50,7 +59,8 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-double AEnemy::CalculateImpactAngle(const FVector& ImpactPoint) {
+double AEnemy::CalculateImpactAngle(const FVector& ImpactPoint)
+{
 	const FVector Forward = GetActorForwardVector();
 	const FVector ImpactLowered(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
 	const FVector ToHit = (ImpactLowered - GetActorLocation()).GetSafeNormal();
@@ -78,11 +88,12 @@ double AEnemy::CalculateImpactAngle(const FVector& ImpactPoint) {
 	// 									 FColor::Green, 5.f, 2.f);
 	// UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 75.f, 5.f,
 	// 									 FColor::Blue, 5.f, 2.f);
-	
+
 	return Theta;
 }
 
-void AEnemy::GetHitReactMontageSection(const double ImpactAngle, FName& Section) {
+void AEnemy::GetHitReactMontageSection(const double ImpactAngle, FName& Section)
+{
 	Section = {};
 	if (ImpactAngle >= -45.f && ImpactAngle < 45.f)
 	{
@@ -111,5 +122,16 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 
 	UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, ImpactPoint);
+}
 
+float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
+                         AActor* DamageCauser)
+{
+	if (AttributeComponent && HealthBarWidget)
+	{
+		AttributeComponent->ReceiveDamage(Damage);
+		HealthBarWidget->SetHealthPercent(AttributeComponent->GetCurrentHealthPercent());
+	}
+
+	return Damage;
 }

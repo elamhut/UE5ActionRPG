@@ -3,6 +3,7 @@
 
 #include "Item/Weapon.h"
 
+#include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Interfaces/HitInterface.h"
@@ -41,13 +42,17 @@ void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName InSocket
 	ItemMesh->AttachToComponent(InParent, TransformRules, InSocketName);
 }
 
-void AWeapon::Equip(USceneComponent* InParent, const FName InSocketName)
+void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
 {
+	SetOwner(NewOwner);
+	SetInstigator(NewInstigator);
 	AttachMeshToSocket(InParent, InSocketName);
 	ItemState = EItemState::EIS_Equipped;
 
 	if (Sphere)
 		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Particles.Get()->Deactivate();
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -69,11 +74,11 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	const FVector Start = TraceStart->GetComponentLocation();
 	const FVector End = TraceEnd->GetComponentLocation();
 	FHitResult HitResult{};
-	
+
 	TArray<AActor*> ActorsToIgnore;
 	for (AActor* Actor : IgnoreActors)
 		ActorsToIgnore.AddUnique(Actor);
-	
+
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
 		Start,
@@ -94,7 +99,14 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			HitActor->Execute_GetHit(Actor, HitResult.ImpactPoint);
 		}
-			IgnoreActors.AddUnique(Actor);
-			CreateFields(HitResult.ImpactPoint);
+		IgnoreActors.AddUnique(Actor);
+		CreateFields(HitResult.ImpactPoint);
+		UGameplayStatics::ApplyDamage(
+			Actor,
+			Damage,
+			GetInstigator()->GetController(),
+			this,
+			UDamageType::StaticClass()
+		);
 	}
 }

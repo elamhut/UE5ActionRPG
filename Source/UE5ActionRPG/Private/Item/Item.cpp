@@ -3,6 +3,7 @@
 
 #include "UE5ActionRPG/Public/Item/Item.h"
 
+#include "NiagaraComponent.h"
 #include "Characters/ActionRPGCharacter.h"
 #include "Components/SphereComponent.h"
 
@@ -13,10 +14,13 @@ AItem::AItem()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));
-	RootComponent = ItemMesh;
+	SetRootComponent(ItemMesh);
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
+
+	Particles = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particles"));
+	Particles->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned

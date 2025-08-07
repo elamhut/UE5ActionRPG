@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+class UNiagaraComponent;
 class USphereComponent;
 
 enum class EItemState : uint8
@@ -25,17 +26,24 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float Speed{5.f};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float Amplitude{0.25f};
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> Particles;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> ItemMesh;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USphereComponent> Sphere;
+
+	
 	EItemState ItemState = EItemState::EIS_Hovering;
+
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintPure, Category = "Transform Parameters")
 	float TransformedSin();
@@ -52,8 +60,6 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USphereComponent> Sphere;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sine Parameters", meta = (AllowPrivateAccess = "true"))
