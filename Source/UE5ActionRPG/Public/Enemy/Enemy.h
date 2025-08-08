@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterTypes.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
@@ -19,32 +20,48 @@ public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	double CalculateImpactAngle(const FVector& ImpactPoint);
+	double CalculateImpactAngle(const FVector& ImpactPoint) const;
 	void GetHitReactMontageSection(double ImpactAngle, FName& Section);
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
-		AActor* DamageCauser) override;
+	                         AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;
-	void PlayHitReactMontage(const FName& SectionName) const;
+	void PlayMontage(const FName& SectionName, UAnimMontage* Montage) const;
+	void Die();
+
+	UPROPERTY(BlueprintReadOnly)
+	EDeathPose DeathPose = EDeathPose::EDP_Alive;
 
 private:
+	// Gameplay Variables
+	UPROPERTY()
+	TObjectPtr<AActor> CombatTarget;
+
+	UPROPERTY(EditAnywhere)
+	double CombatRadius{500.f};
+	
+	// Components
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAttributeComponent> AttributeComponent;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UHealthBarComponent> HealthBarWidget;
+	
 	// VFX
 	UPROPERTY(EditAnywhere, Category="Visual Effects")
 	TObjectPtr<UParticleSystem> HitParticles;
-	
+
 	// Animation Montages
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	TObjectPtr<UAnimMontage> DeathMontage;
 
 	// Sounds
 	UPROPERTY(EditAnywhere, Category="Sounds")
 	TObjectPtr<USoundBase> HitSound;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAttributeComponent> AttributeComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UHealthBarComponent> HealthBarWidget;
+
 };

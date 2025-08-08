@@ -16,13 +16,15 @@ public:
 	UAttributeComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 	[[nodiscard]] FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 	[[nodiscard]] FORCEINLINE float GetCurrentHealthPercent() const { return CurrentHealth / MaxHealth; }
-	
+
 	[[nodiscard]] FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
 	void ReceiveDamage(const float Damage);
+	FORCEINLINE bool IsAlive() const { return CurrentHealth > 0.f; };
+
 protected:
 	virtual void BeginPlay() override;
 
