@@ -18,7 +18,8 @@ public class UE5ActionRPG : ModuleRules
 			"HairStrandsCore",
 			"GeometryCollectionEngine",
 			"Niagara",
-			"UMG"
+			"UMG",
+			"AIModule"
 		} );
 
 		PrivateDependencyModuleNames.AddRange( new string[] { } );

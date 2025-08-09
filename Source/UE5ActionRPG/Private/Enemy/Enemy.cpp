@@ -7,7 +7,12 @@
 #include "Components/CapsuleComponent.h"
 #include "HUD/HealthBarComponent.h"
 #include "CharacterTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "AIController.h"
+#include "AI/Navigation/NavigationTypes.h"
+#include "AITypes.h"
+#include "Navigation/PathFollowingComponent.h"
 
 
 // Sets default values
@@ -28,6 +33,12 @@ AEnemy::AEnemy()
 
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBarComponent"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +46,9 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthBarWidget->SetVisibility(false);
+
+	EnemyController = Cast<AAIController>(GetController());
+	MoveToTarget(PatrolTarget);
 
 }
 
@@ -72,8 +86,53 @@ void AEnemy::Die()
 	
 	PlayMontage(SectionName, DeathMontage);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	SetLifeSpan(5.f);
+	SetLifeSpan(20.f);
 	HealthBarWidget->SetVisibility(false);
+}
+
+bool AEnemy::InTargetRage(AActor* Target, double Radius)
+{
+	if (!Target) return false;
+	
+	const double DistanceToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 10.f, 12, FColor::Red, false);
+	DrawDebugSphere(GetWorld(), Target->GetActorLocation(), 10.f, 12, FColor::Red, false);
+	
+	return DistanceToTarget <= Radius;
+}
+
+void AEnemy::MoveToTarget(AActor* Target)
+{
+	if (!EnemyController || !Target) return;
+	
+	FAIMoveRequest MoveReq;
+	MoveReq.SetGoalActor(Target);
+	MoveReq.SetAcceptanceRadius(15.f);
+	EnemyController->MoveTo(MoveReq);
+	
+}
+
+AActor* AEnemy::ChoosePatrolTarget()
+{
+	TArray<AActor*> ValidTargets;
+	for (AActor* Target : PatrolTargets)
+	{
+		if (Target != PatrolTarget)
+		{
+			ValidTargets.AddUnique(Target);
+		}
+	}
+	
+	const int32 RandomTarget = FMath::RandRange(0, ValidTargets.Num() - 1);
+	if (PatrolTarget = ValidTargets[RandomTarget])
+		return PatrolTarget;
+	
+	return nullptr;
+}
+
+void AEnemy::PatrolTimerFinished()
+{
+	MoveToTarget(PatrolTarget);
 }
 
 // Called every frame
@@ -82,12 +141,17 @@ void AEnemy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (CombatTarget)
 	{
-		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
-		if (DistanceToTarget > CombatRadius)
+		if (!InTargetRage(CombatTarget, CombatRadius))
 		{
 			CombatTarget = nullptr;
 			HealthBarWidget->SetVisibility(false);
 		}
+	}
+
+	if (InTargetRage(PatrolTarget, PatrolRadius))
+	{
+		PatrolTarget = ChoosePatrolTarget();
+		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, 5.f);
 	}
 }
 
