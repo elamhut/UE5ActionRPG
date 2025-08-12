@@ -44,6 +44,8 @@ AActionRPGCharacter::AActionRPGCharacter()
 void AActionRPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Tags.Add(FName("ActionRPGCharacter"));
 }
 
 // Called every frame

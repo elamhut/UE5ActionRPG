@@ -8,6 +8,7 @@
 #include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
+class UPawnSensingComponent;
 class AAIController;
 class UHealthBarComponent;
 class UAttributeComponent;
@@ -26,6 +27,8 @@ public:
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
+	UFUNCTION()
+	void OnSeePawnHandler(APawn* Pawn);
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,15 +49,25 @@ private:
 	UPROPERTY(EditAnywhere)
 	double CombatRadius{500.f};
 	UPROPERTY(EditAnywhere)
+	double AttackRadius{150.f};
+	UPROPERTY(EditAnywhere)
 	double PatrolRadius{200.f};
+	UPROPERTY(EditAnywhere)
+	float PatrolWaitMin{2.f};
+	UPROPERTY(EditAnywhere)
+	float PatrolWaitMax{5.f};
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 	
 	FTimerHandle PatrolTimer;
 	void PatrolTimerFinished();
+	void CheckCombatTarget();
+	void CheckPatrolTarget();
 
 	UPROPERTY()
 	TObjectPtr<AAIController> EnemyController;
 	
-	UPROPERTY(EditInstanceOnly, Category="AI Stuff")
+	UPROPERTY(EditInstanceOnly, Category="AI Stuff", BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> PatrolTarget;
 
 	UPROPERTY(EditInstanceOnly, Category="AI Stuff")
@@ -65,6 +78,8 @@ private:
 	TObjectPtr<UAttributeComponent> AttributeComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UHealthBarComponent> HealthBarWidget;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UPawnSensingComponent> SensingComponent;
 	
 	// VFX
 	UPROPERTY(EditAnywhere, Category="Visual Effects")
