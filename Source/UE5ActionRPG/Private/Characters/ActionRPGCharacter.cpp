@@ -5,7 +5,6 @@
 
 #include "GroomComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Item/Weapon.h"
@@ -85,7 +84,7 @@ void AActionRPGCharacter::DoJump()
 	Jump();
 }
 
-void AActionRPGCharacter::PlayAttackMontage() const
+void AActionRPGCharacter::PlayAttackMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && AttackMontage)
@@ -119,7 +118,7 @@ void AActionRPGCharacter::PlayEquipMontage(const FName SectionName) const
 	}
 }
 
-bool AActionRPGCharacter::CanAttack() const
+bool AActionRPGCharacter::CanAttack()
 {
 	return ActionState == EActionState::EAS_Unoccupied && CharacterState != ECharacterState::ECS_Unequipped;
 }
@@ -138,7 +137,7 @@ void AActionRPGCharacter::DoAttack()
 
 void AActionRPGCharacter::AttackEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	ActionState = EActionState::EAS_Unoccupied;
+	ActionState = EActionState::EAS_Unoccupied; 
 }
 
 void AActionRPGCharacter::Disarm() const
@@ -160,15 +159,6 @@ void AActionRPGCharacter::Arm() const
 void AActionRPGCharacter::FinishEquipping()
 {
 	ActionState = EActionState::EAS_Unoccupied;
-}
-
-void AActionRPGCharacter::SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled)
-{
-	if (EquippedWeapon && EquippedWeapon->GetWeaponCollider())
-	{
-		EquippedWeapon->GetWeaponCollider()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->IgnoreActors.Empty();
-	}
 }
 
 bool AActionRPGCharacter::CanDisarm() const

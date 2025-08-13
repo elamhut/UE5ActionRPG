@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "CharacterTypes.h"
-#include "GameFramework/Character.h"
 #include "ActionRPGCharacter.generated.h"
 
 class AWeapon;
@@ -14,7 +14,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS()
-class UE5ACTIONRPG_API AActionRPGCharacter : public ACharacter
+class UE5ACTIONRPG_API AActionRPGCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -22,48 +22,46 @@ public:
 	AActionRPGCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void DoMove(const FVector2D& Vector);
-	virtual void DoLook(const FVector2D& Vector);
-	virtual void DoJump();
-	virtual void DoAttack();
-	virtual void DoEquip();
-	virtual void DoDodge();
+	void DoMove(const FVector2D& Vector);
+	void DoLook(const FVector2D& Vector);
+	void DoJump();
+	virtual void DoAttack() override;
+	void DoEquip();
+	void DoDodge();
 
 	[[nodiscard]] FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
-	FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
+	FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem)
+	{
+		this->OverlappingItem = OverlappedItem;
+	}
+
 	[[nodiscard]] FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
-	
 
 protected:
 	virtual void BeginPlay() override;
-	void PlayAttackMontage() const;
+	virtual void PlayAttackMontage() override;
 	void PlayEquipMontage(const FName SectionName) const;
-	bool CanAttack() const;
+	virtual bool CanAttack() override;
 	bool CanDisarm() const;
 	bool CanArm() const;
 
-	UFUNCTION(BlueprintCallable)
-	void AttackEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void AttackEnded(UAnimMontage* Montage, bool bInterrupted) override;
 
 	UFUNCTION(BlueprintCallable)
 	void Disarm() const;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void Arm() const;
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled);
-	
 private:
-
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	EActionState ActionState = EActionState::EAS_Unoccupied;
-	
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
@@ -79,15 +77,7 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	TObjectPtr<AItem> OverlappingItem;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AWeapon> EquippedWeapon;
-
 	// Animation Montages
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> AttackMontage;
-
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> EquipMontage;
-
 };

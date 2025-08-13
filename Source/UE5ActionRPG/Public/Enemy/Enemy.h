@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "CharacterTypes.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h"
+#include "Characters/BaseCharacter.h"
 #include "Enemy.generated.h"
 
-class UPawnSensingComponent;
 class AAIController;
+class UPawnSensingComponent;
 class UHealthBarComponent;
 class UAttributeComponent;
 
 UCLASS()
-class UE5ACTIONRPG_API AEnemy : public ACharacter, public IHitInterface
+class UE5ACTIONRPG_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -22,8 +21,6 @@ public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	double CalculateImpactAngle(const FVector& ImpactPoint) const;
-	void GetHitReactMontageSection(double ImpactAngle, FName& Section);
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
@@ -32,8 +29,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void PlayMontage(const FName& SectionName, UAnimMontage* Montage) const;
-	void Die();
+	virtual void Die() override;
 	bool InTargetRage(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
@@ -58,7 +54,7 @@ private:
 	float PatrolWaitMax{5.f};
 
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
-	
+
 	FTimerHandle PatrolTimer;
 	void PatrolTimerFinished();
 	void CheckCombatTarget();
@@ -66,35 +62,16 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<AAIController> EnemyController;
-	
+
 	UPROPERTY(EditInstanceOnly, Category="AI Stuff", BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<AActor> PatrolTarget;
 
 	UPROPERTY(EditInstanceOnly, Category="AI Stuff")
 	TArray<TObjectPtr<AActor>> PatrolTargets;
-	
+
 	// Components
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAttributeComponent> AttributeComponent;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UHealthBarComponent> HealthBarWidget;
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UPawnSensingComponent> SensingComponent;
-	
-	// VFX
-	UPROPERTY(EditAnywhere, Category="Visual Effects")
-	TObjectPtr<UParticleSystem> HitParticles;
-
-	// Animation Montages
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> HitReactMontage;
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> DeathMontage;
-
-	// Sounds
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	TObjectPtr<USoundBase> HitSound;
-
-
-
 };
