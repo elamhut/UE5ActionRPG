@@ -20,28 +20,35 @@ class UE5ACTIONRPG_API AEnemy : public ABaseCharacter
 public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
-	                         AActor* DamageCauser) override;
+	virtual void Destroyed() override;
+
+	virtual float TakeDamage(float Damage,
+							 const FDamageEvent& DamageEvent,
+							 AController* EventInstigator,
+							 AActor* DamageCauser) override;
+	
 	UFUNCTION()
 	void OnSeePawnHandler(APawn* Pawn);
 
 protected:
+
+	
 	virtual void BeginPlay() override;
 	virtual void Die() override;
-	bool InTargetRage(AActor* Target, double Radius);
+	virtual void DoAttack() override;
+	virtual void PlayAttackMontage() override;
 	void MoveToTarget(AActor* Target);
+	bool InTargetRage(AActor* Target, double Radius);
 	AActor* ChoosePatrolTarget();
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose = EDeathPose::EDP_Alive;
-
+	EDeathPose DeathPose;
+	UPROPERTY(BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+	
 private:
 	// Gameplay Variables
-	UPROPERTY()
-	TObjectPtr<AActor> CombatTarget;
-
 	UPROPERTY(EditAnywhere)
 	double CombatRadius{500.f};
 	UPROPERTY(EditAnywhere)
@@ -52,13 +59,35 @@ private:
 	float PatrolWaitMin{2.f};
 	UPROPERTY(EditAnywhere)
 	float PatrolWaitMax{5.f};
-
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+	UPROPERTY(EditAnywhere)
+	float PatrolSpeed{150.f};
+	UPROPERTY(EditAnywhere)
+	float ChasingSpeed{400.f};
+	UPROPERTY(EditAnywhere)
+	float AttackMinTimer{0.5f};
+	UPROPERTY(EditAnywhere)
+	float AttackMaxTimer{1.5f};
 
 	FTimerHandle PatrolTimer;
+	FTimerHandle AttackTimer;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> WeaponClass;
+	UPROPERTY()
+	TObjectPtr<AActor> CombatTarget;
+	
 	void PatrolTimerFinished();
+	void LoseInterest();
+	void StartPatrolState();
+	bool IsOutsideCombatRadius();
+	void ChaseCombatTarget();
+	bool IsAttacking();
+	bool IsInsideAttackRadius();
+	bool IsChasing();
+	bool IsOutsideAttackRadius();
 	void CheckCombatTarget();
 	void CheckPatrolTarget();
+	void StartAttackTimer();
 
 	UPROPERTY()
 	TObjectPtr<AAIController> EnemyController;
