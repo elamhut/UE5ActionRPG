@@ -28,6 +28,9 @@ public:
     void DoEquip();
     void DoDodge();
 
+    // IHitInterface
+    virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+    
     FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
     FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
     FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }

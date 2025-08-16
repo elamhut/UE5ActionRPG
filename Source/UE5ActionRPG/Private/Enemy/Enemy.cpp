@@ -55,6 +55,8 @@ void AEnemy::BeginPlay()
     AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
     DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
     EquippedWeapon = DefaultWeapon;
+
+    Tags.Add(FName("Enemy"));
 }
 
 void AEnemy::DisableCollision() { GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
@@ -263,7 +265,7 @@ void AEnemy::OnSeePawnHandler(APawn* Pawn)
     const bool bShouldChaseTarget = EnemyState != EEnemyState::EES_Dead &&
                                     EnemyState != EEnemyState::EES_Chasing &&
                                     EnemyState < EEnemyState::EES_Attacking &&
-                                    Pawn->ActorHasTag(FName("ActionRPGCharacter"));
+                                    Pawn->ActorHasTag(FName("EngageableTarget"));
 
     if (bShouldChaseTarget)
     {

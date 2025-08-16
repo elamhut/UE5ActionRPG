@@ -17,8 +17,12 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon();
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
+	void ExecuteGetHit(FHitResult HitResult, AActor* Actor);
+	bool IsActorSameType(AActor* Actor);
 	void AttachMeshToSocket(USceneComponent* InParent, FName InSocketName);
-	
+	void DisableSphereCollision();
+	void DeactivateEmberParticles();
+
 	[[nodiscard]] FORCEINLINE  UBoxComponent* GetWeaponCollider() const { return  WeaponCollider; }
 	
 	TArray<AActor*> IgnoreActors;
@@ -27,9 +31,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -37,6 +38,14 @@ protected:
 	void CreateFields(const FVector& FieldLocation);
 	
 private:
+	void BoxTrace(FHitResult& BoxHit);
+
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	FVector BoxTraceExtent{5.f};
+
+	UPROPERTY(EditAnywhere)
+	bool bShowBoxDebug{false};
+	
 	UPROPERTY(EditAnywhere)
 	float Damage{20.f};
 	

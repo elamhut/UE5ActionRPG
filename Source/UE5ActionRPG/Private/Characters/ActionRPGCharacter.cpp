@@ -23,6 +23,12 @@ AActionRPGCharacter::AActionRPGCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);
 
+	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
+
 	Hair = CreateDefaultSubobject<UGroomComponent>(TEXT("Hair"));
 	Hair->SetupAttachment(GetMesh());
 	Hair->AttachmentName = FString("head");
@@ -44,7 +50,7 @@ void AActionRPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Tags.Add(FName("ActionRPGCharacter"));
+	Tags.Add(FName("EngageableTarget"));
 }
 
 // Called every frame
@@ -185,4 +191,12 @@ void AActionRPGCharacter::DoEquip()
 void AActionRPGCharacter::DoDodge()
 {
 	UE_LOG(LogTemp, Warning, TEXT("DODGING!"));
+}
+
+void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	Super::GetHit_Implementation(ImpactPoint);
+
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
 }
