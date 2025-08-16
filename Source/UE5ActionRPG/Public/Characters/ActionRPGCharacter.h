@@ -21,7 +21,6 @@ class UE5ACTIONRPG_API AActionRPGCharacter : public ABaseCharacter
 public:
 	AActionRPGCharacter();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void DoMove(const FVector2D& Vector);
 	void DoLook(const FVector2D& Vector);
 	void DoJump();
@@ -39,13 +38,14 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void PlayAttackMontage() override;
-	void PlayEquipMontage(const FName SectionName) const;
+	virtual void AttackEnded(UAnimMontage* Montage, bool bInterrupted) override;
+	
 	virtual bool CanAttack() override;
+	
+	void PlayEquipMontage(const FName SectionName) const;
+	
 	bool CanDisarm() const;
 	bool CanArm() const;
-
-	virtual void AttackEnded(UAnimMontage* Montage, bool bInterrupted) override;
 
 	UFUNCTION(BlueprintCallable)
 	void Disarm() const;

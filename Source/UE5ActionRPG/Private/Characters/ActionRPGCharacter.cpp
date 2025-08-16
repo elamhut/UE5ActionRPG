@@ -53,12 +53,6 @@ void AActionRPGCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
-void AActionRPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
 void AActionRPGCharacter::DoMove(const FVector2D& Vector)
 {
 	if (ActionState != EActionState::EAS_Unoccupied) return;
@@ -82,30 +76,6 @@ void AActionRPGCharacter::DoLook(const FVector2D& Vector)
 void AActionRPGCharacter::DoJump()
 {
 	Jump();
-}
-
-void AActionRPGCharacter::PlayAttackMontage()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && AttackMontage)
-	{
-		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 1);
-		FName SectionName = FName();
-		switch (Selection)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		default:
-			break;
-		}
-
-		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
-	}
 }
 
 void AActionRPGCharacter::PlayEquipMontage(const FName SectionName) const

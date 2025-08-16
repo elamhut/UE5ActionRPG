@@ -26,12 +26,14 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void DoAttack();
 	virtual void Die();
-	virtual void PlayAttackMontage();
 	virtual void HandleDamage(float DamageAmount);
 
 	virtual bool CanAttack();
 	
-	void PlayMontage(const FName& SectionName, UAnimMontage* Montage) const;
+	void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
+	int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
+	virtual int32 PlayAttackMontage();
+	virtual int32 PlayDeathMontage();
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
 
@@ -50,10 +52,18 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<AWeapon> EquippedWeapon;
 
+	UPROPERTY(EditAnywhere, Category="Montages")
+	TArray<FName> AttackMontageSections;
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditAnywhere, Category="Montages")
+	TArray<FName> HitReactMontageSections;
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+	
+	UPROPERTY(EditAnywhere, Category="Montages")
+	TArray<FName> DeathMontageSections;
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> DeathMontage;
 

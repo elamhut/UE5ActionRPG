@@ -61,61 +61,21 @@ void AEnemy::BeginPlay()
 	EquippedWeapon = DefaultWeapon;
 }
 
+void AEnemy::DisableCollision() { GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
+
 void AEnemy::Die()
 {
-	const int32 Selection = FMath::RandRange(0, 1);
-	FName SectionName = FName();
-	switch (Selection)
-	{
-	case 0:
-		SectionName = FName("Death1");
-		DeathPose = EDeathPose::EDP_Death1;
-		break;
-	case 1:
-		SectionName = FName("Death2");
-		DeathPose = EDeathPose::EDP_Death2;
-		break;
-	case 2:
-		SectionName = FName("Death3");
-		DeathPose = EDeathPose::EDP_Death3;
-		break;
-	default:
-		break;
-	}
-
-	PlayMontage(SectionName, DeathMontage);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	SetLifeSpan(20.f);
+	EnemyState = EEnemyState::EES_Dead;
+	PlayDeathMontage();
+	ClearAttackTimer();
 	HealthBarWidget->SetVisibility(false);
+	DisableCollision();
+	SetLifeSpan(DeathLifespan);
 }
 
 void AEnemy::DoAttack()
 {
 	PlayAttackMontage();
-}
-
-void AEnemy::PlayAttackMontage()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && AttackMontage)
-	{
-		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 1);
-		FName SectionName = FName();
-		switch (Selection)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		default:
-			break;
-		}
-
-		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
-	}
 }
 
 void AEnemy::HandleDamage(float DamageAmount)
@@ -266,7 +226,7 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 	if (IsAlive())
 	{
 		const double ImpactAngle = CalculateImpactAngle(ImpactPoint);
-		PlayMontage(GetHitReactMontageSection(ImpactAngle), HitReactMontage);
+		PlayMontageSection(GetHitReactMontageSection(ImpactAngle), HitReactMontage);
 	}
 	else
 		Die();
@@ -317,4 +277,15 @@ bool AEnemy::CanAttack()
 							!IsDead();
 	
 	return bCanAttack;
+}
+
+int32 AEnemy::PlayDeathMontage()
+{
+	const int32 Selection = Super::PlayDeathMontage();
+	TEnumAsByte<EDeathPose> Pose(Selection);
+	
+	if (Pose < EDeathPose::EDP_MAX)
+		DeathPose = Pose;
+
+	return  Selection;
 }

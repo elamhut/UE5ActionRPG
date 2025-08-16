@@ -33,20 +33,23 @@ public:
 	void OnSeePawnHandler(APawn* Pawn);
 
 protected:
-	virtual bool CanAttack() override;
 	virtual void BeginPlay() override;
+	void DisableCollision();
 	virtual void Die() override;
 	virtual void DoAttack() override;
-	virtual void PlayAttackMontage() override;
 	virtual void HandleDamage(float DamageAmount) override;
+	virtual bool CanAttack() override;
+	virtual int32 PlayDeathMontage() override;
 
+	UPROPERTY(EditAnywhere)
+	float DeathLifespan{15.f};
 
 	void MoveToTarget(AActor* Target);
 	bool InTargetRage(AActor* Target, double Radius);
 	AActor* ChoosePatrolTarget();
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose;
+	TEnumAsByte<EDeathPose> DeathPose;
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 

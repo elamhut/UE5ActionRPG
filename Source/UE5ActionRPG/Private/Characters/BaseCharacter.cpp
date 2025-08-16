@@ -23,7 +23,7 @@ void ABaseCharacter::BeginPlay()
 
 void ABaseCharacter::DoAttack() {}
 void ABaseCharacter::Die() {}
-void ABaseCharacter::PlayAttackMontage() {}
+
 
 void ABaseCharacter::HandleDamage(float DamageAmount)
 {
@@ -88,7 +88,17 @@ FName ABaseCharacter::GetHitReactMontageSection(double ImpactAngle)
 	return Section;
 }
 
-void ABaseCharacter::PlayMontage(const FName& SectionName, UAnimMontage* Montage) const
+int32 ABaseCharacter::PlayAttackMontage()
+{
+	return PlayRandomMontageSection(AttackMontageSections, AttackMontage);
+}
+
+int32 ABaseCharacter::PlayDeathMontage()
+{
+	return PlayRandomMontageSection(DeathMontageSections, DeathMontage);
+}
+
+void ABaseCharacter::PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && Montage)
@@ -96,6 +106,16 @@ void ABaseCharacter::PlayMontage(const FName& SectionName, UAnimMontage* Montage
 		AnimInstance->Montage_Play(Montage);
 		AnimInstance->Montage_JumpToSection(SectionName, Montage);
 	}
+}
+
+int32 ABaseCharacter::PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const
+{
+	if (SectionNames.Num() <= 0) return -1;
+	const int32 MaxSectionIndex = SectionNames.Num() - 1;
+	const int32 Selection = FMath::RandRange(0, MaxSectionIndex);
+	PlayMontageSection(SectionNames[Selection], Montage);
+
+	return Selection;
 }
 
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
