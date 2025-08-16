@@ -26,11 +26,17 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void DoAttack();
 	virtual void Die();
-
 	virtual void PlayAttackMontage();
-	void PlayMontage(const FName& SectionName, UAnimMontage* Montage) const;
-	virtual bool CanAttack();
+	virtual void HandleDamage(float DamageAmount);
 
+	virtual bool CanAttack();
+	
+	void PlayMontage(const FName& SectionName, UAnimMontage* Montage) const;
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+
+	bool IsAlive();
+	
 	double CalculateImpactAngle(const FVector& ImpactPoint) const;
 	FName GetHitReactMontageSection(double ImpactAngle);
 
@@ -51,6 +57,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	TObjectPtr<UAnimMontage> DeathMontage;
 
+private:
 	// VFX
 	UPROPERTY(EditAnywhere, Category="Visual Effects")
 	TObjectPtr<UParticleSystem> HitParticles;

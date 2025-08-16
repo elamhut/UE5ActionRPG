@@ -6,6 +6,7 @@
 #include "Components/AttributeComponent.h"
 #include "Components/BoxComponent.h"
 #include "Item/Weapon.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ABaseCharacter::ABaseCharacter()
@@ -13,7 +14,6 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
-	
 }
 
 void ABaseCharacter::BeginPlay()
@@ -24,6 +24,12 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::DoAttack() {}
 void ABaseCharacter::Die() {}
 void ABaseCharacter::PlayAttackMontage() {}
+
+void ABaseCharacter::HandleDamage(float DamageAmount)
+{
+	AttributeComponent->ReceiveDamage(DamageAmount);
+}
+
 bool ABaseCharacter::CanAttack() { return false; }
 
 double ABaseCharacter::CalculateImpactAngle(const FVector& ImpactPoint) const
@@ -90,6 +96,21 @@ void ABaseCharacter::PlayMontage(const FName& SectionName, UAnimMontage* Montage
 		AnimInstance->Montage_Play(Montage);
 		AnimInstance->Montage_JumpToSection(SectionName, Montage);
 	}
+}
+
+void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
+{
+	UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);
+}
+
+void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, ImpactPoint);
+}
+
+bool ABaseCharacter::IsAlive()
+{
+	return AttributeComponent && AttributeComponent->IsAlive();
 }
 
 void ABaseCharacter::AttackEnded(UAnimMontage* Montage, bool bInterrupted) {}

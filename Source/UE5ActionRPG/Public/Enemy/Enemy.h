@@ -22,22 +22,25 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual void Destroyed() override;
+	void ClearPatrolTimer();
 
 	virtual float TakeDamage(float Damage,
-							 const FDamageEvent& DamageEvent,
-							 AController* EventInstigator,
-							 AActor* DamageCauser) override;
-	
+	                         const FDamageEvent& DamageEvent,
+	                         AController* EventInstigator,
+	                         AActor* DamageCauser) override;
+
 	UFUNCTION()
 	void OnSeePawnHandler(APawn* Pawn);
 
 protected:
-
-	
+	virtual bool CanAttack() override;
 	virtual void BeginPlay() override;
 	virtual void Die() override;
 	virtual void DoAttack() override;
 	virtual void PlayAttackMontage() override;
+	virtual void HandleDamage(float DamageAmount) override;
+
+
 	void MoveToTarget(AActor* Target);
 	bool InTargetRage(AActor* Target, double Radius);
 	AActor* ChoosePatrolTarget();
@@ -46,7 +49,7 @@ protected:
 	EDeathPose DeathPose;
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
-	
+
 private:
 	// Gameplay Variables
 	UPROPERTY(EditAnywhere)
@@ -75,19 +78,22 @@ private:
 	TSubclassOf<AWeapon> WeaponClass;
 	UPROPERTY()
 	TObjectPtr<AActor> CombatTarget;
-	
+
 	void PatrolTimerFinished();
 	void LoseInterest();
 	void StartPatrolState();
 	bool IsOutsideCombatRadius();
 	void ChaseCombatTarget();
+	bool IsEngaged();
 	bool IsAttacking();
 	bool IsInsideAttackRadius();
 	bool IsChasing();
 	bool IsOutsideAttackRadius();
 	void CheckCombatTarget();
 	void CheckPatrolTarget();
+	bool IsDead();
 	void StartAttackTimer();
+	void ClearAttackTimer();
 
 	UPROPERTY()
 	TObjectPtr<AAIController> EnemyController;
