@@ -13,66 +13,63 @@ class AWeapon;
 UCLASS()
 class UE5ACTIONRPG_API ABaseCharacter : public ACharacter, public IHitInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	ABaseCharacter();
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled);
+    ABaseCharacter();
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void DoAttack();
-	virtual void Die();
-	virtual void HandleDamage(float DamageAmount);
+    virtual void BeginPlay() override;
 
-	virtual bool CanAttack();
-	
-	void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
-	int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
-	virtual int32 PlayAttackMontage();
-	virtual int32 PlayDeathMontage();
-	void PlayHitSound(const FVector& ImpactPoint);
-	void SpawnHitParticles(const FVector& ImpactPoint);
+    virtual bool CanAttack();
+    bool IsAlive();
 
-	bool IsAlive();
-	
-	double CalculateImpactAngle(const FVector& ImpactPoint) const;
-	FName GetHitReactMontageSection(double ImpactAngle);
+    virtual void DoAttack();
+    virtual void Die();
+    virtual void HandleDamage(float DamageAmount);
+    double CalculateImpactAngle(const FVector& ImpactPoint) const;
+    FName GetHitReactMontageSection(double ImpactAngle);
+    virtual int32 PlayAttackMontage();
+    virtual int32 PlayDeathMontage();
+    void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
+    int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
 
+    UFUNCTION(BlueprintCallable)
+    virtual void AttackEnd();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnded(UAnimMontage* Montage, bool bInterrupted);
+    UFUNCTION(BlueprintCallable)
+    void SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled);
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAttributeComponent> AttributeComponent;
+    void PlayHitSound(const FVector& ImpactPoint);
+    void SpawnHitParticles(const FVector& ImpactPoint);
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AWeapon> EquippedWeapon;
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UAttributeComponent> AttributeComponent;
 
-	UPROPERTY(EditAnywhere, Category="Montages")
-	TArray<FName> AttackMontageSections;
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> AttackMontage;
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<AWeapon> EquippedWeapon;
 
-	UPROPERTY(EditAnywhere, Category="Montages")
-	TArray<FName> HitReactMontageSections;
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> HitReactMontage;
-	
-	UPROPERTY(EditAnywhere, Category="Montages")
-	TArray<FName> DeathMontageSections;
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> DeathMontage;
+    UPROPERTY(EditAnywhere, Category="Montages")
+    TArray<FName> AttackMontageSections;
+    UPROPERTY(EditDefaultsOnly, Category="Montages")
+    TObjectPtr<UAnimMontage> AttackMontage;
+
+    UPROPERTY(EditAnywhere, Category="Montages")
+    TArray<FName> HitReactMontageSections;
+    UPROPERTY(EditDefaultsOnly, Category="Montages")
+    TObjectPtr<UAnimMontage> HitReactMontage;
+
+    UPROPERTY(EditAnywhere, Category="Montages")
+    TArray<FName> DeathMontageSections;
+    UPROPERTY(EditDefaultsOnly, Category="Montages")
+    TObjectPtr<UAnimMontage> DeathMontage;
 
 private:
-	// VFX
-	UPROPERTY(EditAnywhere, Category="Visual Effects")
-	TObjectPtr<UParticleSystem> HitParticles;
+    // VFX
+    UPROPERTY(EditAnywhere, Category="Visual Effects")
+    TObjectPtr<UParticleSystem> HitParticles;
 
-	// Sounds
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	TObjectPtr<USoundBase> HitSound;
+    // Sounds
+    UPROPERTY(EditAnywhere, Category="Sounds")
+    TObjectPtr<USoundBase> HitSound;
 };

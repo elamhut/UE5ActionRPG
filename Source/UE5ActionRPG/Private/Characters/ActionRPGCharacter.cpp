@@ -101,16 +101,16 @@ void AActionRPGCharacter::DoAttack()
 		ActionState = EActionState::EAS_Attacking;
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &AActionRPGCharacter::AttackEnded);
+		AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &AActionRPGCharacter::PlayerAttackEnd);
 	}
 }
 
-void AActionRPGCharacter::AttackEnded(UAnimMontage* Montage, bool bInterrupted)
+void AActionRPGCharacter::PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	ActionState = EActionState::EAS_Unoccupied; 
 }
 
-void AActionRPGCharacter::Disarm() const
+void AActionRPGCharacter::AttachWeaponToBack() const
 {
 	if (EquippedWeapon)
 	{
@@ -118,7 +118,7 @@ void AActionRPGCharacter::Disarm() const
 	}
 }
 
-void AActionRPGCharacter::Arm() const
+void AActionRPGCharacter::AttachWeaponToHand() const
 {
 	if (EquippedWeapon)
 	{
@@ -144,28 +144,40 @@ bool AActionRPGCharacter::CanArm() const
 		EquippedWeapon;
 }
 
+void AActionRPGCharacter::EquipWeapon(AWeapon* Weapon) {
+	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	OverlappingItem = nullptr;
+	EquippedWeapon = Weapon;
+}
+
+void AActionRPGCharacter::Disarm() {
+	PlayEquipMontage(FName("Unequip"));
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+void AActionRPGCharacter::Arm() {
+	PlayEquipMontage(FName("Equip"));
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
 void AActionRPGCharacter::DoEquip()
 {
 	if (AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem))
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		OverlappingItem = nullptr;
-		EquippedWeapon = OverlappingWeapon;
+		EquipWeapon(OverlappingWeapon);
 	}
 	else
 	{
 		if (CanDisarm())
 		{
-			PlayEquipMontage(FName("Unequip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Disarm();
 		}
 		else if (CanArm())
 		{
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Arm();
 		}
 	}
 }

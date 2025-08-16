@@ -5,15 +5,19 @@
 
 #include "Components/AttributeComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Item/Weapon.h"
 #include "Kismet/GameplayStatics.h"
 
 
 ABaseCharacter::ABaseCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+	
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
 }
 
 void ABaseCharacter::BeginPlay()
@@ -133,12 +137,8 @@ bool ABaseCharacter::IsAlive()
 	return AttributeComponent && AttributeComponent->IsAlive();
 }
 
-void ABaseCharacter::AttackEnded(UAnimMontage* Montage, bool bInterrupted) {}
+void ABaseCharacter::AttackEnd() {}
 
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
 
 void ABaseCharacter::SetWeaponCollisionType(ECollisionEnabled::Type CollisionEnabled)
 {

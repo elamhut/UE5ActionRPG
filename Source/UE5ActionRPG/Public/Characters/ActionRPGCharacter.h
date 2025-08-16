@@ -16,68 +16,69 @@ class UCameraComponent;
 UCLASS()
 class UE5ACTIONRPG_API AActionRPGCharacter : public ABaseCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AActionRPGCharacter();
-	virtual void Tick(float DeltaTime) override;
-	void DoMove(const FVector2D& Vector);
-	void DoLook(const FVector2D& Vector);
-	void DoJump();
-	virtual void DoAttack() override;
-	void DoEquip();
-	void DoDodge();
+    AActionRPGCharacter();
+    virtual void Tick(float DeltaTime) override;
+    void DoMove(const FVector2D& Vector);
+    void DoLook(const FVector2D& Vector);
+    void DoJump();
+    virtual void DoAttack() override;
+    void DoEquip();
+    void DoDodge();
 
-	[[nodiscard]] FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
-	FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem)
-	{
-		this->OverlappingItem = OverlappedItem;
-	}
-
-	[[nodiscard]] FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+    FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
+    FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
+    FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void AttackEnded(UAnimMontage* Montage, bool bInterrupted) override;
-	
-	virtual bool CanAttack() override;
-	
-	void PlayEquipMontage(const FName SectionName) const;
-	
-	bool CanDisarm() const;
-	bool CanArm() const;
+    virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
-	void Disarm() const;
+    virtual bool CanAttack() override;
+    bool CanDisarm() const;
+    bool CanArm() const;
 
-	UFUNCTION(BlueprintCallable)
-	void Arm() const;
+    UFUNCTION()
+    virtual void PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted);
 
-	UFUNCTION(BlueprintCallable)
-	void FinishEquipping();
+    void PlayEquipMontage(const FName SectionName) const;
+
+    void EquipWeapon(AWeapon* Weapon);
+    void Disarm();
+    void Arm();
+
+    UFUNCTION(BlueprintCallable)
+    void AttachWeaponToBack() const;
+
+    UFUNCTION(BlueprintCallable)
+    void AttachWeaponToHand() const;
+
+    UFUNCTION(BlueprintCallable)
+    void FinishEquipping();
 
 private:
-	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+    ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
-	EActionState ActionState = EActionState::EAS_Unoccupied;
+    UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+    EActionState ActionState = EActionState::EAS_Unoccupied;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USpringArmComponent> SpringArmComponent;
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<USpringArmComponent> SpringArmComponent;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UCameraComponent> CameraComponent;
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UCameraComponent> CameraComponent;
 
-	UPROPERTY(VisibleAnywhere, Category="Hair")
-	TObjectPtr<UGroomComponent> Hair;
+    UPROPERTY(VisibleAnywhere, Category="Hair")
+    TObjectPtr<UGroomComponent> Hair;
 
-	UPROPERTY(VisibleAnywhere, Category="Hair")
-	TObjectPtr<UGroomComponent> Eyebrows;
+    UPROPERTY(VisibleAnywhere, Category="Hair")
+    TObjectPtr<UGroomComponent> Eyebrows;
 
-	UPROPERTY(VisibleInstanceOnly)
-	TObjectPtr<AItem> OverlappingItem;
+    UPROPERTY(VisibleInstanceOnly)
+    TObjectPtr<AItem> OverlappingItem;
 
-	// Animation Montages
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	TObjectPtr<UAnimMontage> EquipMontage;
+    // Animation Montages
+    UPROPERTY(EditDefaultsOnly, Category="Montages")
+    TObjectPtr<UAnimMontage> EquipMontage;
 };

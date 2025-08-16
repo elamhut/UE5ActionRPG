@@ -15,101 +15,103 @@ class UAttributeComponent;
 UCLASS()
 class UE5ACTIONRPG_API AEnemy : public ABaseCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AEnemy();
-	virtual void Tick(float DeltaTime) override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-	virtual void Destroyed() override;
-	void ClearPatrolTimer();
+    // Unreal
+    AEnemy();
+    virtual void Tick(float DeltaTime) override;
+    virtual void Destroyed() override;
 
-	virtual float TakeDamage(float Damage,
-	                         const FDamageEvent& DamageEvent,
-	                         AController* EventInstigator,
-	                         AActor* DamageCauser) override;
+    // IHitInterface
+    virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
-	UFUNCTION()
-	void OnSeePawnHandler(APawn* Pawn);
+    // AActor
+    virtual float TakeDamage(float Damage,
+                             const FDamageEvent& DamageEvent,
+                             AController* EventInstigator,
+                             AActor* DamageCauser) override;
 
 protected:
-	virtual void BeginPlay() override;
-	void DisableCollision();
-	virtual void Die() override;
-	virtual void DoAttack() override;
-	virtual void HandleDamage(float DamageAmount) override;
-	virtual bool CanAttack() override;
-	virtual int32 PlayDeathMontage() override;
+    UPROPERTY(BlueprintReadOnly)
+    TEnumAsByte<EDeathPose> DeathPose;
+    UPROPERTY(BlueprintReadOnly)
+    EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
-	UPROPERTY(EditAnywhere)
-	float DeathLifespan{15.f};
+    virtual void BeginPlay() override;
+    virtual void Die() override;
+    virtual void DoAttack() override;
+    virtual void HandleDamage(float DamageAmount) override;
+    virtual void AttackEnd() override;
+    virtual bool CanAttack() override;
 
-	void MoveToTarget(AActor* Target);
-	bool InTargetRage(AActor* Target, double Radius);
-	AActor* ChoosePatrolTarget();
-
-	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<EDeathPose> DeathPose;
-	UPROPERTY(BlueprintReadOnly)
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+    virtual int32 PlayDeathMontage() override;
 
 private:
-	// Gameplay Variables
-	UPROPERTY(EditAnywhere)
-	double CombatRadius{500.f};
-	UPROPERTY(EditAnywhere)
-	double AttackRadius{150.f};
-	UPROPERTY(EditAnywhere)
-	double PatrolRadius{200.f};
-	UPROPERTY(EditAnywhere)
-	float PatrolWaitMin{2.f};
-	UPROPERTY(EditAnywhere)
-	float PatrolWaitMax{5.f};
-	UPROPERTY(EditAnywhere)
-	float PatrolSpeed{150.f};
-	UPROPERTY(EditAnywhere)
-	float ChasingSpeed{400.f};
-	UPROPERTY(EditAnywhere)
-	float AttackMinTimer{0.5f};
-	UPROPERTY(EditAnywhere)
-	float AttackMaxTimer{1.5f};
+    // Gameplay Variables
+    UPROPERTY(EditAnywhere)
+    double CombatRadius{1000.f};
+    UPROPERTY(EditAnywhere)
+    double AttackRadius{150.f};
+    UPROPERTY(EditAnywhere)
+    double PatrolRadius{200.f};
+    UPROPERTY(EditAnywhere)
+    float PatrolWaitMin{2.f};
+    UPROPERTY(EditAnywhere)
+    float PatrolWaitMax{5.f};
+    UPROPERTY(EditAnywhere)
+    float PatrolSpeed{150.f};
+    UPROPERTY(EditAnywhere)
+    float ChasingSpeed{400.f};
+    UPROPERTY(EditAnywhere)
+    float AttackMinTimer{0.5f};
+    UPROPERTY(EditAnywhere)
+    float AttackMaxTimer{1.5f};
+    UPROPERTY(EditAnywhere)
+    float DeathLifespan{15.f};
 
-	FTimerHandle PatrolTimer;
-	FTimerHandle AttackTimer;
+    FTimerHandle PatrolTimer;
+    FTimerHandle AttackTimer;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AWeapon> WeaponClass;
-	UPROPERTY()
-	TObjectPtr<AActor> CombatTarget;
+    UPROPERTY()
+    TObjectPtr<AAIController> EnemyController;
 
-	void PatrolTimerFinished();
-	void LoseInterest();
-	void StartPatrolState();
-	bool IsOutsideCombatRadius();
-	void ChaseCombatTarget();
-	bool IsEngaged();
-	bool IsAttacking();
-	bool IsInsideAttackRadius();
-	bool IsChasing();
-	bool IsOutsideAttackRadius();
-	void CheckCombatTarget();
-	void CheckPatrolTarget();
-	bool IsDead();
-	void StartAttackTimer();
-	void ClearAttackTimer();
+    UPROPERTY(EditInstanceOnly, Category="AI Stuff", BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+    TObjectPtr<AActor> PatrolTarget;
+    UPROPERTY(EditInstanceOnly, Category="AI Stuff")
+    TArray<TObjectPtr<AActor>> PatrolTargets;
+    UPROPERTY()
+    TObjectPtr<AActor> CombatTarget;
 
-	UPROPERTY()
-	TObjectPtr<AAIController> EnemyController;
+    // Components
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UHealthBarComponent> HealthBarWidget;
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UPawnSensingComponent> SensingComponent;
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<AWeapon> WeaponClass;
 
-	UPROPERTY(EditInstanceOnly, Category="AI Stuff", BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
-	TObjectPtr<AActor> PatrolTarget;
+    void CheckPatrolTarget();
+    void CheckCombatTarget();
+    void PatrolTimerFinished();
+    void LoseInterest();
+    void StartPatrolState();
+    void ChaseCombatTarget();
+    bool IsOutsideCombatRadius();
+    bool IsOutsideAttackRadius();
+    bool IsInsideAttackRadius();
+    bool IsChasing();
+    bool IsAttacking();
+    bool IsDead();
+    bool IsEngaged();
+    void StartAttackTimer();
+    void ClearAttackTimer();
+    void ClearPatrolTimer();
+    void DisableCollision();
+    void MoveToTarget(AActor* Target);
+    bool InTargetRage(AActor* Target, double Radius);
+    AActor* ChoosePatrolTarget();
 
-	UPROPERTY(EditInstanceOnly, Category="AI Stuff")
-	TArray<TObjectPtr<AActor>> PatrolTargets;
-
-	// Components
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UHealthBarComponent> HealthBarWidget;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UPawnSensingComponent> SensingComponent;
+    UFUNCTION()
+    void OnSeePawnHandler(APawn* Pawn);
 };
