@@ -87,6 +87,7 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
         
         UGameplayStatics::ApplyDamage(Actor, Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
         ExecuteGetHit(HitResult, Actor);
+        UE_LOG(LogTemp, Warning, TEXT("BATEU NO ACTOR %s"), *Actor->GetName());
         CreateFields(HitResult.ImpactPoint);
     }
 }
@@ -97,6 +98,8 @@ void AWeapon::BoxTrace(FHitResult& BoxHit)
     const FVector End   = TraceEnd->GetComponentLocation();
 
     TArray<AActor*> ActorsToIgnore;
+    ActorsToIgnore.Add(this);
+    ActorsToIgnore.Add(GetOwner());
     for (AActor* Actor : IgnoreActors)
     {
         ActorsToIgnore.AddUnique(Actor);
@@ -113,7 +116,7 @@ void AWeapon::BoxTrace(FHitResult& BoxHit)
         ActorsToIgnore,
         bShowBoxDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
         BoxHit,
-        true
+        true 
     );
 
     IgnoreActors.AddUnique(BoxHit.GetActor());

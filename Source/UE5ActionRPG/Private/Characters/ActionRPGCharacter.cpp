@@ -196,7 +196,4 @@ void AActionRPGCharacter::DoDodge()
 void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	Super::GetHit_Implementation(ImpactPoint);
-
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
 }

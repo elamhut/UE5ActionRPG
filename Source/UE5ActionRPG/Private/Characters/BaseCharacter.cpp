@@ -25,6 +25,20 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	if (IsAlive())
+	{
+		const double ImpactAngle = CalculateImpactAngle(ImpactPoint);
+		PlayMontageSection(GetHitReactMontageSection(ImpactAngle), HitReactMontage);
+	}
+	else
+		Die();
+
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
 void ABaseCharacter::DoAttack() {}
 void ABaseCharacter::Die() {}
 

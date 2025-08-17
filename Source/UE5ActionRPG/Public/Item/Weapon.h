@@ -28,7 +28,6 @@ public:
 	TArray<AActor*> IgnoreActors;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
@@ -41,7 +40,7 @@ private:
 	void BoxTrace(FHitResult& BoxHit);
 
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
-	FVector BoxTraceExtent{5.f};
+	FVector BoxTraceExtent{20.f};
 
 	UPROPERTY(EditAnywhere)
 	bool bShowBoxDebug{false};

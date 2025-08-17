@@ -227,17 +227,8 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
+    Super::GetHit_Implementation(ImpactPoint);
     HealthBarWidget->SetVisibility(true);
-    if (IsAlive())
-    {
-        const double ImpactAngle = CalculateImpactAngle(ImpactPoint);
-        PlayMontageSection(GetHitReactMontageSection(ImpactAngle), HitReactMontage);
-    }
-    else
-        Die();
-
-    PlayHitSound(ImpactPoint);
-    SpawnHitParticles(ImpactPoint);
 }
 
 float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
