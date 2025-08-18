@@ -24,7 +24,7 @@ public:
     virtual void Destroyed() override;
 
     // IHitInterface
-    virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+    virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
     // AActor
     virtual float TakeDamage(float Damage,
@@ -33,6 +33,9 @@ public:
                              AActor* DamageCauser) override;
 
 protected:
+    UPROPERTY(BlueprintReadOnly)
+    TObjectPtr<AActor> CombatTarget;
+    
     UPROPERTY(BlueprintReadOnly)
     TEnumAsByte<EDeathPose> DeathPose;
     UPROPERTY(BlueprintReadOnly)
@@ -80,8 +83,7 @@ private:
     TObjectPtr<AActor> PatrolTarget;
     UPROPERTY(EditInstanceOnly, Category="AI Stuff")
     TArray<TObjectPtr<AActor>> PatrolTargets;
-    UPROPERTY()
-    TObjectPtr<AActor> CombatTarget;
+
 
     // Components
     UPROPERTY(VisibleAnywhere)

@@ -21,7 +21,7 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-    virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+    virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
     
     virtual bool CanAttack();
     bool IsAlive();
@@ -35,6 +35,7 @@ protected:
     virtual int32 PlayDeathMontage();
     void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
     int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
+    void StopAttackMontage();
 
     UFUNCTION(BlueprintCallable)
     virtual void AttackEnd();

@@ -25,11 +25,11 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	if (IsAlive())
+	if (IsAlive() && Hitter)
 	{
-		const double ImpactAngle = CalculateImpactAngle(ImpactPoint);
+		const double ImpactAngle = CalculateImpactAngle(Hitter->GetActorLocation());
 		PlayMontageSection(GetHitReactMontageSection(ImpactAngle), HitReactMontage);
 	}
 	else
@@ -134,6 +134,12 @@ int32 ABaseCharacter::PlayRandomMontageSection(const TArray<FName>& SectionNames
 	PlayMontageSection(SectionNames[Selection], Montage);
 
 	return Selection;
+}
+
+void ABaseCharacter::StopAttackMontage()
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		AnimInstance->Montage_Stop(0.25f, AttackMontage);
 }
 
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)

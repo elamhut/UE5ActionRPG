@@ -46,7 +46,7 @@ void ABreakableActor::DropItem(const FChaosBreakEvent& Event)
 	UE_LOG(LogTemp, Warning, TEXT("SPAWNED THIS BITCH!"));
 }
 
-void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
+void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	
 }

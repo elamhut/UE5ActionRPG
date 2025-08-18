@@ -29,7 +29,7 @@ public:
     void DoDodge();
 
     // IHitInterface
-    virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+    virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
     
     FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
     FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
@@ -43,7 +43,10 @@ protected:
     bool CanArm() const;
 
     UFUNCTION()
-    virtual void PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted);
+    void PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted);
+    
+    UFUNCTION(BlueprintCallable)
+    void HitReactEnd();
 
     void PlayEquipMontage(const FName SectionName) const;
 

@@ -63,11 +63,11 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOw
     DeactivateEmberParticles();
 }
 
-void AWeapon::ExecuteGetHit(FHitResult HitResult, AActor* Actor)
+void AWeapon::ExecuteGetHit(const FHitResult& HitResult, AActor* Actor)
 {
     if (IHitInterface* HitActor = Cast<IHitInterface>(Actor))
     {
-        HitActor->Execute_GetHit(Actor, HitResult.ImpactPoint);
+        HitActor->Execute_GetHit(Actor, HitResult.ImpactPoint, GetOwner());
     }
 }
 

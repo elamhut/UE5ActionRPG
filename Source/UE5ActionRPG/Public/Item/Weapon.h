@@ -17,7 +17,7 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon();
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
-	void ExecuteGetHit(FHitResult HitResult, AActor* Actor);
+	void ExecuteGetHit(const FHitResult& HitResult, AActor* Actor);
 	bool IsActorSameType(AActor* Actor);
 	void AttachMeshToSocket(USceneComponent* InParent, FName InSocketName);
 	void DisableSphereCollision();

@@ -69,6 +69,7 @@ void AEnemy::Die()
     HealthBarWidget->SetVisibility(false);
     DisableCollision();
     SetLifeSpan(DeathLifespan);
+    SetWeaponCollisionType(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::DoAttack()
@@ -225,10 +226,18 @@ void AEnemy::Tick(float DeltaTime)
         CheckPatrolTarget();
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-    Super::GetHit_Implementation(ImpactPoint);
-    HealthBarWidget->SetVisibility(true);
+    Super::GetHit_Implementation(ImpactPoint, Hitter);
+    
+    if (!IsDead())
+        HealthBarWidget->SetVisibility(true);
+    
+    ClearPatrolTimer();
+    ClearAttackTimer();
+    SetWeaponCollisionType(ECollisionEnabled::NoCollision);
+
+    StopAttackMontage();
 }
 
 float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
@@ -236,7 +245,15 @@ float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AControl
 {
     HandleDamage(Damage);
     CombatTarget = EventInstigator->GetPawn();
-    ChaseCombatTarget();
+
+    if (IsInsideAttackRadius())
+    {
+        EnemyState = EEnemyState::EES_Attacking;
+    }
+    else if (IsOutsideAttackRadius())
+    {
+        ChaseCombatTarget();
+    }
 
     return Damage;
 }

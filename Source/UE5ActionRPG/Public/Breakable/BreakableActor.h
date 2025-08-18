@@ -20,7 +20,7 @@ class UE5ACTIONRPG_API ABreakableActor : public AActor, public IHitInterface
 public:
 	// Sets default values for this actor's properties
 	ABreakableActor();
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 
 	UFUNCTION()
 	void DropItem(const FChaosBreakEvent& Event);

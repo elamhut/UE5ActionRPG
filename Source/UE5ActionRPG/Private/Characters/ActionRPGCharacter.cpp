@@ -116,6 +116,11 @@ void AActionRPGCharacter::PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupt
 	ActionState = EActionState::EAS_Unoccupied; 
 }
 
+void AActionRPGCharacter::HitReactEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
 void AActionRPGCharacter::AttachWeaponToBack() const
 {
 	if (EquippedWeapon)
@@ -193,7 +198,9 @@ void AActionRPGCharacter::DoDodge()
 	UE_LOG(LogTemp, Warning, TEXT("DODGING!"));
 }
 
-void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	Super::GetHit_Implementation(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	ActionState = EActionState::EAS_HitReaction;
+	SetWeaponCollisionType(ECollisionEnabled::NoCollision);
 }
