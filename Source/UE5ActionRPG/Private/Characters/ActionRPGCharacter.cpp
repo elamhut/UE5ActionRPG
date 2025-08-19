@@ -204,3 +204,10 @@ void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint, AAct
 	ActionState = EActionState::EAS_HitReaction;
 	SetWeaponCollisionType(ECollisionEnabled::NoCollision);
 }
+
+float AActionRPGCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(Damage);
+
+	return Damage;
+}

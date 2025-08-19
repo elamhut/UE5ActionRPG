@@ -38,6 +38,12 @@ protected:
     void StopAttackMontage();
 
     UFUNCTION(BlueprintCallable)
+    FVector GetTranslationWarpTarget();
+    
+    UFUNCTION(BlueprintCallable)
+    FVector GetRotationWarpTarget();
+    
+    UFUNCTION(BlueprintCallable)
     virtual void AttackEnd();
 
     UFUNCTION(BlueprintCallable)
@@ -45,6 +51,12 @@ protected:
 
     void PlayHitSound(const FVector& ImpactPoint);
     void SpawnHitParticles(const FVector& ImpactPoint);
+
+    UPROPERTY(BlueprintReadOnly)
+    TObjectPtr<AActor> CombatTarget;
+
+    UPROPERTY(EditAnywhere)
+    float WarpTargetDistance{75.f};
 
     UPROPERTY(VisibleAnywhere)
     TObjectPtr<UAttributeComponent> AttributeComponent;

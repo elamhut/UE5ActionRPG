@@ -33,8 +33,7 @@ public:
                              AActor* DamageCauser) override;
 
 protected:
-    UPROPERTY(BlueprintReadOnly)
-    TObjectPtr<AActor> CombatTarget;
+
     
     UPROPERTY(BlueprintReadOnly)
     TEnumAsByte<EDeathPose> DeathPose;

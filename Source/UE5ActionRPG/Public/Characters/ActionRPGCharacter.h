@@ -30,6 +30,12 @@ public:
 
     // IHitInterface
     virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+
+    // AActor
+    virtual float TakeDamage(float Damage,
+                             const FDamageEvent& DamageEvent,
+                             AController* EventInstigator,
+                             AActor* DamageCauser) override;
     
     FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
     FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
