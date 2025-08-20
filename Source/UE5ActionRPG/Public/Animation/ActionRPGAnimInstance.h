@@ -6,6 +6,8 @@
 #include "Animation/AnimInstance.h"
 #include "ActionRPGAnimInstance.generated.h"
 
+enum EDeathPose : int;
+enum class EActionState : uint8;
 enum class ECharacterState : uint8;
 class UCharacterMovementComponent;
 class AActionRPGCharacter;
@@ -33,6 +35,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsFalling;
 
-	UPROPERTY(BlueprintReadOnly, Category="Movement | Character State")
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
 	ECharacterState CharacterState;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
+	EActionState ActionState;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
+	TEnumAsByte<EDeathPose> DeathPose;
 };

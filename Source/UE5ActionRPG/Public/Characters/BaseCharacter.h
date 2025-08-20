@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterTypes.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "BaseCharacter.generated.h"
@@ -17,6 +18,8 @@ class UE5ACTIONRPG_API ABaseCharacter : public ACharacter, public IHitInterface
 
 public:
     ABaseCharacter();
+
+    FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 
 protected:
     virtual void BeginPlay() override;
@@ -36,6 +39,7 @@ protected:
     void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
     int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
     void StopAttackMontage();
+    void DisableMeshCollision();
 
     UFUNCTION(BlueprintCallable)
     FVector GetTranslationWarpTarget();
@@ -78,7 +82,9 @@ protected:
     TArray<FName> DeathMontageSections;
     UPROPERTY(EditDefaultsOnly, Category="Montages")
     TObjectPtr<UAnimMontage> DeathMontage;
-
+    UPROPERTY(BlueprintReadOnly)
+    TEnumAsByte<EDeathPose> DeathPose;
+    
 private:
     // VFX
     UPROPERTY(EditAnywhere, Category="Visual Effects")

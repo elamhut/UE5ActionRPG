@@ -33,10 +33,6 @@ public:
                              AActor* DamageCauser) override;
 
 protected:
-
-    
-    UPROPERTY(BlueprintReadOnly)
-    TEnumAsByte<EDeathPose> DeathPose;
     UPROPERTY(BlueprintReadOnly)
     EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
@@ -46,8 +42,6 @@ protected:
     virtual void HandleDamage(float DamageAmount) override;
     virtual void AttackEnd() override;
     virtual bool CanAttack() override;
-
-    virtual int32 PlayDeathMontage() override;
 
 private:
     // Gameplay Variables

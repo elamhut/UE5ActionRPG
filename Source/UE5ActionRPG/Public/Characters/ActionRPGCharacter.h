@@ -7,6 +7,7 @@
 #include "CharacterTypes.h"
 #include "ActionRPGCharacter.generated.h"
 
+class UActionRPGOverlay;
 class AWeapon;
 class AItem;
 class UGroomComponent;
@@ -23,6 +24,7 @@ public:
     virtual void Tick(float DeltaTime) override;
     void DoMove(const FVector2D& Vector);
     void DoLook(const FVector2D& Vector);
+    bool IsUnoccupied();
     void DoJump();
     virtual void DoAttack() override;
     void DoEquip();
@@ -40,10 +42,11 @@ public:
     FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
     FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
     FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+    FORCEINLINE EActionState GetActionState() const { return ActionState; }
 
 protected:
     virtual void BeginPlay() override;
-
+    virtual void Die() override;
     virtual bool CanAttack() override;
     bool CanDisarm() const;
     bool CanArm() const;
@@ -81,6 +84,9 @@ private:
     UPROPERTY(EditAnywhere)
     TObjectPtr<UCameraComponent> CameraComponent;
 
+    UPROPERTY()
+    TObjectPtr<UActionRPGOverlay> ActionRPGOverlay;
+
     UPROPERTY(VisibleAnywhere, Category="Hair")
     TObjectPtr<UGroomComponent> Hair;
 
@@ -93,4 +99,8 @@ private:
     // Animation Montages
     UPROPERTY(EditDefaultsOnly, Category="Montages")
     TObjectPtr<UAnimMontage> EquipMontage;
+
+    void InitializeHUDOverlay();
+    void UpdateHealthBar();
+    
 };

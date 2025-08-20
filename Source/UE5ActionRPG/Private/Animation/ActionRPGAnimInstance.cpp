@@ -20,8 +20,10 @@ void UActionRPGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	if (!MovementComponent) return;
+	
 	GroundSpeed = UKismetMathLibrary::VSizeXY(MovementComponent->Velocity);
-
 	bIsFalling = MovementComponent->IsFalling();
 	CharacterState = ActionRPGCharacter->GetCharacterState();
+	ActionState = ActionRPGCharacter->GetActionState();
+	DeathPose = ActionRPGCharacter->GetDeathPose();
 }

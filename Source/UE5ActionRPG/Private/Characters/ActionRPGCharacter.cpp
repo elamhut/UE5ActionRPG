@@ -5,8 +5,11 @@
 
 #include "GroomComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "HUD/ActionRPGHUD.h"
+#include "HUD/ActionRPGOverlay.h"
 #include "Item/Weapon.h"
 
 
@@ -51,6 +54,16 @@ void AActionRPGCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Tags.Add(FName("EngageableTarget"));
+	
+	InitializeHUDOverlay();
+}
+
+void AActionRPGCharacter::Die()
+{
+	Super::Die();
+
+	ActionState = EActionState::EAS_Dead;
+	DisableMeshCollision();
 }
 
 // Called every frame
@@ -79,9 +92,12 @@ void AActionRPGCharacter::DoLook(const FVector2D& Vector)
 	AddControllerPitchInput(Vector.Y);
 }
 
+bool AActionRPGCharacter::IsUnoccupied() { return ActionState == EActionState::EAS_Unoccupied; }
+
 void AActionRPGCharacter::DoJump()
 {
-	Jump();
+	if (IsUnoccupied())
+		Jump();
 }
 
 void AActionRPGCharacter::PlayEquipMontage(const FName SectionName) const
@@ -201,13 +217,40 @@ void AActionRPGCharacter::DoDodge()
 void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
-	ActionState = EActionState::EAS_HitReaction;
+	
 	SetWeaponCollisionType(ECollisionEnabled::NoCollision);
+	if (AttributeComponent && AttributeComponent->GetCurrentHealthPercent() > 0.f)
+		ActionState = EActionState::EAS_HitReaction;
 }
+
 
 float AActionRPGCharacter::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(Damage);
-
+	UpdateHealthBar();
+	
 	return Damage;
+}
+
+void AActionRPGCharacter::InitializeHUDOverlay()
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (AActionRPGHUD* ActionRPGHUD = Cast<AActionRPGHUD>(PlayerController->GetHUD()))
+		{
+			if (ActionRPGOverlay = ActionRPGHUD->GetOverlay())
+			{
+				ActionRPGOverlay->SetHealthBarPercent(AttributeComponent->GetCurrentHealthPercent());
+				ActionRPGOverlay->SetStaminaBarPercent(AttributeComponent->GetCurrentHealthPercent());
+				ActionRPGOverlay->SetGold(0);
+				ActionRPGOverlay->SetSouls(0);
+			}
+		}
+	}
+}
+
+void AActionRPGCharacter::UpdateHealthBar()
+{
+	if (ActionRPGOverlay && AttributeComponent)
+		ActionRPGOverlay->SetHealthBarPercent(AttributeComponent->GetCurrentHealthPercent());
 }

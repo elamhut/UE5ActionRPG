@@ -63,8 +63,9 @@ void AEnemy::DisableCollision() { GetCapsuleComponent()->SetCollisionEnabled(ECo
 
 void AEnemy::Die()
 {
+    Super::Die();
+    
     EnemyState = EEnemyState::EES_Dead;
-    PlayDeathMontage();
     ClearAttackTimer();
     HealthBarWidget->SetVisibility(false);
     DisableCollision();
@@ -74,8 +75,11 @@ void AEnemy::Die()
 
 void AEnemy::DoAttack()
 {
-    EnemyState = EEnemyState::EES_Engaged;
     Super::DoAttack();
+
+    if (!CombatTarget) return;
+    
+    EnemyState = EEnemyState::EES_Engaged;
     PlayAttackMontage();
 }
 
@@ -291,15 +295,4 @@ bool AEnemy::CanAttack()
                             !IsDead();
 
     return bCanAttack;
-}
-
-int32 AEnemy::PlayDeathMontage()
-{
-    const int32 Selection = Super::PlayDeathMontage();
-    TEnumAsByte<EDeathPose> Pose(Selection);
-
-    if (Pose < EDeathPose::EDP_MAX)
-        DeathPose = Pose;
-
-    return Selection;
 }

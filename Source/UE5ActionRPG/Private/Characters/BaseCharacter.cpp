@@ -39,8 +39,17 @@ void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* H
 	SpawnHitParticles(ImpactPoint);
 }
 
-void ABaseCharacter::DoAttack() {}
-void ABaseCharacter::Die() {}
+void ABaseCharacter::DoAttack()
+{
+	if (CombatTarget && CombatTarget->ActorHasTag(FName("Dead")))
+		CombatTarget = nullptr;
+}
+
+void ABaseCharacter::Die()
+{
+	Tags.Add(FName("Dead"));
+    PlayDeathMontage();
+}
 
 
 void ABaseCharacter::HandleDamage(float DamageAmount)
@@ -113,7 +122,13 @@ int32 ABaseCharacter::PlayAttackMontage()
 
 int32 ABaseCharacter::PlayDeathMontage()
 {
-	return PlayRandomMontageSection(DeathMontageSections, DeathMontage);
+	const int32 Selection = PlayRandomMontageSection(DeathMontageSections, DeathMontage);
+	TEnumAsByte<EDeathPose> Pose(Selection);
+
+	if (Pose < EDeathPose::EDP_MAX)
+		DeathPose = Pose;
+	
+	return Selection;
 }
 
 void ABaseCharacter::PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const
@@ -140,6 +155,11 @@ void ABaseCharacter::StopAttackMontage()
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		AnimInstance->Montage_Stop(0.25f, AttackMontage);
+}
+
+void ABaseCharacter::DisableMeshCollision()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 FVector ABaseCharacter::GetTranslationWarpTarget()
