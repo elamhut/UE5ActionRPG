@@ -36,6 +36,7 @@ protected:
     FName GetHitReactMontageSection(double ImpactAngle);
     virtual int32 PlayAttackMontage();
     virtual int32 PlayDeathMontage();
+    virtual void PlayDodgeMontage();
     void PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const;
     int32 PlayRandomMontageSection(const TArray<FName>& SectionNames, UAnimMontage* Montage) const;
     void StopAttackMontage();
@@ -84,6 +85,9 @@ protected:
     TObjectPtr<UAnimMontage> DeathMontage;
     UPROPERTY(BlueprintReadOnly)
     TEnumAsByte<EDeathPose> DeathPose;
+
+    UPROPERTY(EditDefaultsOnly, Category="Montages")
+    TObjectPtr<UAnimMontage> DodgeMontage;
     
 private:
     // VFX

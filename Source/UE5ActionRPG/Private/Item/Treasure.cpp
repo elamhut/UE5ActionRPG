@@ -4,6 +4,7 @@
 #include "Item/Treasure.h"
 
 #include "Characters/ActionRPGCharacter.h"
+#include "Interfaces/IPluginManager.h"
 
 
 // Sets default values
@@ -23,9 +24,10 @@ void ATreasure::BeginPlay()
 void ATreasure::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AActionRPGCharacter* Character = Cast<AActionRPGCharacter>(OtherActor))
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		
+		PickupInterface->AddGold(this);
+		SpawnPickupSound();
 		Destroy();
 	}
 }

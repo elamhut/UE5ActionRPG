@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+class UNiagaraSystem;
 class UNiagaraComponent;
 class USphereComponent;
 
@@ -60,8 +61,16 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	virtual void SpawnPickupSystem();
+	virtual void SpawnPickupSound();
+
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sine Parameters", meta = (AllowPrivateAccess = "true"))
-	float RunningTime;
+	float RunningTime{0.f};
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> PickupSound;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UNiagaraSystem> PickupParticle;
 };

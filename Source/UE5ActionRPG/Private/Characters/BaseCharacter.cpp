@@ -131,6 +131,11 @@ int32 ABaseCharacter::PlayDeathMontage()
 	return Selection;
 }
 
+void ABaseCharacter::PlayDodgeMontage()
+{
+	PlayMontageSection(FName("Default"), DodgeMontage);
+}
+
 void ABaseCharacter::PlayMontageSection(const FName& SectionName, UAnimMontage* Montage) const
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

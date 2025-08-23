@@ -4,8 +4,10 @@
 #include "UE5ActionRPG/Public/Item/Item.h"
 
 #include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Characters/ActionRPGCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -47,9 +49,9 @@ float AItem::TransformedCos()
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (AActionRPGCharacter* Character = Cast<AActionRPGCharacter>(OtherActor))
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		Character->SetOverlappingItem(this);
+		PickupInterface->SetOverlappingItem(this);
 	}
 
 }
@@ -57,10 +59,22 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (AActionRPGCharacter* Character = Cast<AActionRPGCharacter>(OtherActor))
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		Character->SetOverlappingItem(nullptr);
+		PickupInterface->SetOverlappingItem(nullptr);
 	}
+}
+
+void AItem::SpawnPickupSystem()
+{
+	if (PickupParticle)
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, PickupParticle, GetActorLocation());
+}
+
+void AItem::SpawnPickupSound()
+{
+	if (PickupSound)
+		UGameplayStatics::SpawnSoundAtLocation(this, PickupSound, GetActorLocation());
 }
 
 // Called every frame

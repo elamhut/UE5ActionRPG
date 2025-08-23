@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "ActionRPGCharacter.generated.h"
 
 class UActionRPGOverlay;
@@ -15,7 +16,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS()
-class UE5ACTIONRPG_API AActionRPGCharacter : public ABaseCharacter
+class UE5ACTIONRPG_API AActionRPGCharacter : public ABaseCharacter, public IPickupInterface
 {
     GENERATED_BODY()
 
@@ -25,22 +26,25 @@ public:
     void DoMove(const FVector2D& Vector);
     void DoLook(const FVector2D& Vector);
     bool IsUnoccupied();
+    bool IsOccupied();
+    bool HasEnoughStamina();
     void DoJump();
     virtual void DoAttack() override;
     void DoEquip();
     void DoDodge();
 
-    // IHitInterface
+    // Interfaces
     virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
-
+    virtual void SetOverlappingItem(AItem* Item) override;
+    virtual void AddSouls(ASoul* Soul) override;
+    virtual void AddGold(ATreasure* Gold) override;
+    
     // AActor
     virtual float TakeDamage(float Damage,
                              const FDamageEvent& DamageEvent,
                              AController* EventInstigator,
                              AActor* DamageCauser) override;
     
-    FORCEINLINE TObjectPtr<AItem> GetOverlappingItem() const { return OverlappingItem; }
-    FORCEINLINE void SetOverlappingItem(const TObjectPtr<AItem>& OverlappedItem) { this->OverlappingItem = OverlappedItem; }
     FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
     FORCEINLINE EActionState GetActionState() const { return ActionState; }
 
@@ -53,6 +57,8 @@ protected:
 
     UFUNCTION()
     void PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted);
+    UFUNCTION()
+    void PlayerDodgeEnd(UAnimMontage* Montage, bool bInterrupted);
     
     UFUNCTION(BlueprintCallable)
     void HitReactEnd();

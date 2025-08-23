@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HUD/ActionRPGHUD.h"
 #include "HUD/ActionRPGOverlay.h"
+#include "Item/Soul.h"
+#include "Item/Treasure.h"
 #include "Item/Weapon.h"
 
 
@@ -70,6 +72,12 @@ void AActionRPGCharacter::Die()
 void AActionRPGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (AttributeComponent && ActionRPGOverlay)
+	{
+		AttributeComponent->RegenerateStamina(DeltaTime);
+		ActionRPGOverlay->SetStaminaBarPercent(AttributeComponent->GetStaminaPercent());
+	}
 }
 
 void AActionRPGCharacter::DoMove(const FVector2D& Vector)
@@ -128,6 +136,11 @@ void AActionRPGCharacter::DoAttack()
 }
 
 void AActionRPGCharacter::PlayerAttackEnd(UAnimMontage* Montage, bool bInterrupted)
+{
+	ActionState = EActionState::EAS_Unoccupied; 
+}
+
+void AActionRPGCharacter::PlayerDodgeEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	ActionState = EActionState::EAS_Unoccupied; 
 }
@@ -209,9 +222,21 @@ void AActionRPGCharacter::DoEquip()
 	}
 }
 
+bool AActionRPGCharacter::IsOccupied() { return ActionState != EActionState::EAS_Unoccupied; }
+
+bool AActionRPGCharacter::HasEnoughStamina() { return AttributeComponent->GetStamina() > AttributeComponent->GetDodgeCost(); }
+
 void AActionRPGCharacter::DoDodge()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DODGING!"));
+	if (IsOccupied() || !HasEnoughStamina()) return;
+		
+	PlayDodgeMontage();
+	ActionState = EActionState::EAS_Dodging;
+	AttributeComponent->UseStamina(AttributeComponent->GetDodgeCost());
+	ActionRPGOverlay->SetStaminaBarPercent(AttributeComponent->GetStaminaPercent());
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->OnMontageEnded.AddUniqueDynamic(this, &AActionRPGCharacter::PlayerDodgeEnd);
 }
 
 void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
@@ -221,6 +246,29 @@ void AActionRPGCharacter::GetHit_Implementation(const FVector& ImpactPoint, AAct
 	SetWeaponCollisionType(ECollisionEnabled::NoCollision);
 	if (AttributeComponent && AttributeComponent->GetCurrentHealthPercent() > 0.f)
 		ActionState = EActionState::EAS_HitReaction;
+}
+
+void AActionRPGCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void AActionRPGCharacter::AddSouls(ASoul* Soul)
+{
+	if (AttributeComponent && ActionRPGOverlay)
+	{
+		AttributeComponent->AddSouls(Soul->GetSouls());
+		ActionRPGOverlay->SetSouls(AttributeComponent->GetSouls());
+	}
+}
+
+void AActionRPGCharacter::AddGold(ATreasure* Gold)
+{
+	if (AttributeComponent && ActionRPGOverlay)
+	{
+		AttributeComponent->AddSouls(Gold->GetGold());
+		ActionRPGOverlay->SetGold(AttributeComponent->GetGold());
+	}
 }
 
 

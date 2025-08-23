@@ -13,6 +13,7 @@ class UE5ACTIONRPG_API ATreasure : public AItem
 
 public:
 	ATreasure();
+	[[nodiscard]] FORCEINLINE int32 GetGold() const { return Gold; }
 
 protected:
 	virtual void BeginPlay() override;

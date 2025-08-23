@@ -7,6 +7,7 @@
 #include "Characters/BaseCharacter.h"
 #include "Enemy.generated.h"
 
+class ASoul;
 class AAIController;
 class UPawnSensingComponent;
 class UHealthBarComponent;
@@ -85,6 +86,8 @@ private:
     TObjectPtr<UPawnSensingComponent> SensingComponent;
     UPROPERTY(EditAnywhere)
     TSubclassOf<AWeapon> WeaponClass;
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<ASoul> SoulClass;
 
     void CheckPatrolTarget();
     void CheckCombatTarget();
@@ -103,6 +106,7 @@ private:
     void ClearAttackTimer();
     void ClearPatrolTimer();
     void DisableCollision();
+    void SpawnSoul();
     void MoveToTarget(AActor* Target);
     bool InTargetRage(AActor* Target, double Radius);
     AActor* ChoosePatrolTarget();

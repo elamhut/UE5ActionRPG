@@ -12,6 +12,7 @@
 #include "AI/Navigation/NavigationTypes.h"
 #include "AITypes.h"
 #include "Characters/ActionRPGCharacter.h"
+#include "Item/Soul.h"
 #include "Item/Weapon.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
@@ -61,6 +62,18 @@ void AEnemy::BeginPlay()
 
 void AEnemy::DisableCollision() { GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 
+void AEnemy::SpawnSoul()
+{
+    UWorld* World = GetWorld();
+    if (World && SoulClass && AttributeComponent)
+    {
+        const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 0.75f);
+        ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
+        if (SpawnedSoul)
+            SpawnedSoul->SetSouls(AttributeComponent->GetSouls());
+    }
+}
+
 void AEnemy::Die()
 {
     Super::Die();
@@ -71,6 +84,8 @@ void AEnemy::Die()
     DisableCollision();
     SetLifeSpan(DeathLifespan);
     SetWeaponCollisionType(ECollisionEnabled::NoCollision);
+    SpawnSoul();
+
 }
 
 void AEnemy::DoAttack()
@@ -242,6 +257,8 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
     SetWeaponCollisionType(ECollisionEnabled::NoCollision);
 
     StopAttackMontage();
+    if (IsInsideAttackRadius() && !IsDead())
+        StartAttackTimer();
 }
 
 float AEnemy::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator,
